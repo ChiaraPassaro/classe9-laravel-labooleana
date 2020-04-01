@@ -10,29 +10,23 @@
                 <tr>
                   <th>Id</th>
                   <th>Name</th>
-                  <th>User ID</th>
-                  <th colspan="3"></th>
+                  <th>User name</th>
+                  <th colspan="2"></th>
                 </tr>
               </thead>
               <tbody>
-                @foreach ($categories as $category)
                 <tr>
                   <td>{{$category->id}}</td>
                   <td>{{$category->name}}</td>
-                  <td>{{$category->user_id}}</td>
-                <td><a class="btn btn-primary" href="{{route('admin.categories.show', $category)}}">View</a></td>
-                  {{-- se il tuo user id è uguale allo user id della categoria --}}
-                 
+                  <td>{{$category->user->name}}</td>
                   @if(Auth::id() == $category->user_id)
-                  <td><a class="btn btn-primary" href="">Modify</a></td>
+                <td><a class="btn btn-primary" href="{{route('admin.categories.edit', $category)}}">Modify</a></td>
                   <td>
-                    @if($category->id != 1)
-                    <form action="{{route('admin.categories.destroy', $category->id)}}" method="post">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-danger" type="submit">Delete</button>
-                      </form>
-                    @endif
+                    <form action="" method="post">
+                      @csrf
+                      @method('DELETE')
+                      <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
                   </td>
                   @else
                   <td></td>
@@ -40,7 +34,6 @@
                   @endif
                   
                 </tr>
-                @endforeach
               </tbody>
           </table>
           {{-- questo utente può cancellare e modificare solo le sue categorie --}}
