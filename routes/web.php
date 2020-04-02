@@ -25,5 +25,6 @@ Auth::routes();
 Route::name('admin.')->namespace('Admin')->middleware('auth')->prefix('admin')->group(function () {
     Route::resource('categories','CategoryController');
     Route::resource('arguments','ArgumentController');
+    Route::resource('articles','ArticleController');
 });
 

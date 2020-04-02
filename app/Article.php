@@ -13,7 +13,8 @@ class Article extends Model
        'summary',
        'body',
        'slug',
-       'published'
+       'published',
+       'path_image'
     ];
 
     public function user()

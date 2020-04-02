@@ -24,6 +24,7 @@ class CreateArticlesTable extends Migration
 
             $table->string('title');
             $table->text('summary');
+            $table->text('path_image')->nullable();
             $table->longText('body');
             $table->text('slug');
             $table->boolean('published');
