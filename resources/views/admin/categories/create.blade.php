@@ -4,7 +4,7 @@
       <div class="row">
         <div class="col-12">
           {{-- form inserimento category --}}
-        <form action="{{route('admin.categories.store')}}" method="POST">
+          <form action="{{route('admin.categories.store')}}" method="POST">
             @csrf
             @method('POST')
             <label for="name">Nome</label>

@@ -24,5 +24,6 @@ Auth::routes();
 // inseriamo le rotte admin
 Route::name('admin.')->namespace('Admin')->middleware('auth')->prefix('admin')->group(function () {
     Route::resource('categories','CategoryController');
+    Route::resource('arguments','ArgumentController');
 });
 

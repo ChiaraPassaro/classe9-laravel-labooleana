@@ -12,11 +12,10 @@
                   <th>Id</th>
                   <th>Name</th>
                   <th>User ID</th>
-                  <th colspan="4"></th>
+                  <th colspan="2"></th>
                 </tr>
               </thead>
               <tbody>
-                @foreach ($arguments as $argument)
                 <tr>
                   <td>{{$argument->id}}</td>
                   <td>{{$argument->name}}</td>
@@ -25,8 +24,6 @@
                   {{-- se il tuo user id è uguale allo user id della categoria --}}
                  
                   @if(Auth::id() == $argument->user_id)
-                  <td><a class="btn btn-primary" href="{{route('admin.arguments.show', $argument->id)}}">View</a></td>
-                  <td>
                   <td><a class="btn btn-primary" href="{{route('admin.arguments.edit', $argument->id)}}">Modify</a></td>
                   <td>
                     <form action="{{route('admin.arguments.destroy', $argument->id)}}" method="post">
@@ -38,12 +35,9 @@
                   @else
                   <td></td>
                   <td></td>
-                  <td></td>
-                  <td></td>
                   @endif
                   
                 </tr>
-                @endforeach
               </tbody>
           </table>
         </div>
