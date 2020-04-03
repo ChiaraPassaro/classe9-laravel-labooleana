@@ -3,7 +3,9 @@
     <div class="container">
       <div class="row">
         <div class="col-12">
-        <img src="{{asset('storage/' . $article->path_image)}}" alt="">
+          @isset($article->path_image)
+            <img src="{{asset('storage/' . $article->path_image)}}" alt="">
+          @endisset
           <h2>{{$article->title}}</h2>
           <h3>di: {{$article->user->name}}</h3>
           <div>

@@ -45,7 +45,12 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        if(empty($data['path_image'])) {
+            $data['path_image'] = null;
+        } else {
+            $data['path_image'] = Storage::disk('public')->put('images', $data['path_image']);
+        }
        
         $request->validate([
             'category_id' => 'required|numeric|exists:categories,id',
@@ -53,13 +58,13 @@ class ArticleController extends Controller
             'summary' => 'required|string|max:255',
             'body' => 'required|string',
             'published' => 'required|boolean',
-            'path_image' => 'image'
+            'path_image' => 'nullable|image'
         ]);
         
-        $data = $request->all();
-        $newArticle = new Article;
+       
         
-        $path = Storage::putFile('images', $request->file('path_image'));
+        $newArticle = new Article;
+       
 
         $newArticle->user_id = Auth::id();
         $newArticle->category_id = $data['category_id'];
@@ -68,7 +73,7 @@ class ArticleController extends Controller
         $newArticle->body = $data['body'];
         $newArticle->published = $data['published'];
         $newArticle->slug = Str::slug($data['title']) . '-' . Carbon::now()->isoFormat('Y-M-D');
-        $newArticle->path_image = $path;
+        $newArticle->path_image = $data['path_image'];
 
         $saved = $newArticle->save();
 
@@ -100,9 +105,15 @@ class ArticleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Article $article)
     {
-        //
+        $categories = Category::all();
+        $data = [
+            'categories' => $categories,
+            'article' => $article
+        ];
+
+        return view('admin.articles.edit', $data);
     }
 
     /**
@@ -112,9 +123,29 @@ class ArticleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Article $article)
     {
-        //
+        $data = $request->all();
+        if (!empty($data['path_image'])) {
+            $data['path_image'] = Storage::disk('public')->put('images', $data['path_image']);
+        }
+
+        $request->validate([
+            'category_id' => 'required|numeric|exists:categories,id',
+            'title' => 'required|string|max:255',
+            'summary' => 'required|string|max:255',
+            'body' => 'required|string',
+            'published' => 'required|boolean',
+            'path_image' => 'nullable|image'
+        ]);
+
+        $updated = $article->update($data);
+
+        if(!$updated) {
+           return redirect()->back()->withInput();
+        }
+
+        return redirect()->route('admin.articles.show', $article);
     }
 
     /**
@@ -125,6 +156,24 @@ class ArticleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $article = Article::find($id);
+        if(empty($article)) {
+            abort('404');
+        }
+        if(Auth::id() != $article->user_id) {
+            abort('404');
+        }
+
+        $arguments =  $article->arguments;
+        $article->arguments()->detach();
+        $deleted = $article->delete();
+        
+        if(!$deleted) {
+            $article->arguments()->attach($arguments);
+            return redirect()->back();
+        }
+
+        return redirect()->route('admin.articles.index');
+
     }
 }
