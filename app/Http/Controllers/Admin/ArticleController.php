@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Article;
+use App\Argument;
 use App\Category;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -10,9 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+
 use App\Mail\SendNewMail;
+use App\Mail\SendMailUpdateArticle;
 use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
@@ -35,7 +39,14 @@ class ArticleController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.articles.create', compact('categories'));
+        $arguments = Argument::all();
+        
+        $data = [
+            'categories' => $categories,
+            'arguments' => $arguments
+        ];
+
+        return view('admin.articles.create', $data);
     }
 
     /**
@@ -47,13 +58,15 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
+        
         if(empty($data['path_image'])) {
             $data['path_image'] = null;
         } else {
             $data['path_image'] = Storage::disk('public')->put('images', $data['path_image']);
         }
-       
+         
         $request->validate([
+            'arguments.*' => 'exists:arguments,id',
             'category_id' => 'required|numeric|exists:categories,id',
             'title' => 'required|string|max:255',
             'summary' => 'required|string|max:255',
@@ -62,10 +75,8 @@ class ArticleController extends Controller
             'path_image' => 'nullable|image'
         ]);
         
-       
         
         $newArticle = new Article;
-       
 
         $newArticle->user_id = Auth::id();
         $newArticle->category_id = $data['category_id'];
@@ -82,8 +93,11 @@ class ArticleController extends Controller
             return redirect()->back();
         }
 
-        Mail::to('mail@mail.it')->send(new SendNewMail($newArticle));
+        if (!empty($data['arguments'])) {
+            $newArticle->arguments()->attach($data['arguments']);
+        }
 
+        Mail::to('mail@mail.it')->send(new SendNewMail($newArticle));
 
         return redirect()->route('admin.articles.show', $newArticle);
     }
@@ -112,9 +126,11 @@ class ArticleController extends Controller
     public function edit(Article $article)
     {
         $categories = Category::all();
+        $arguments = Argument::all();
         $data = [
             'categories' => $categories,
-            'article' => $article
+            'article' => $article,
+            'arguments' => $arguments,
         ];
 
         return view('admin.articles.edit', $data);
@@ -135,6 +151,7 @@ class ArticleController extends Controller
         }
 
         $request->validate([
+            'arguments.*' => 'exists:arguments,id',
             'category_id' => 'required|numeric|exists:categories,id',
             'title' => 'required|string|max:255',
             'summary' => 'required|string|max:255',
@@ -148,6 +165,12 @@ class ArticleController extends Controller
         if(!$updated) {
            return redirect()->back()->withInput();
         }
+
+        if (!empty($data['arguments'])) {
+            $article->arguments()->sync($data['arguments']);
+        }
+
+        Mail::to('mail@mail.it')->send(new SendMailUpdateArticle($article));
 
         return redirect()->route('admin.articles.show', $article);
     }

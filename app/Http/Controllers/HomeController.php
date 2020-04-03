@@ -24,6 +24,6 @@ class HomeController extends Controller
     public function index()
     {
         //passiamo solo gli articoli published
-        return view('guests.index');
+        return view('home');
     }
 }

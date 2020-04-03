@@ -44,6 +44,14 @@
             </div>
 
             <div class="form-group">
+              <label for="arguments">Argomenti</label>
+              @foreach ($arguments as $argument)
+                <span>{{$argument->name}}</span>
+                <input type="checkbox" name="arguments[]" value="{{$argument->id}}">  
+              @endforeach
+            </div>
+
+            <div class="form-group">
               <button type="submit" class="btn btn-success">Salva</button>
             </div>
           </form>

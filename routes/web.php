@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GuestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,9 +15,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 // inseriamo le rotte guest
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'GuestController@index')->name('index');
+Route::get('/articles', 'GuestController@home')->name('guest.home');
+
 Route::get('/home', 'HomeController@index')->name('home');
 
 Auth::routes();
