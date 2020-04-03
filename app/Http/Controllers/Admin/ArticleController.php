@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-
+use App\Mail\SendNewMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ArticleController extends Controller
@@ -80,6 +81,9 @@ class ArticleController extends Controller
         if(!$saved) {
             return redirect()->back();
         }
+
+        Mail::to('mail@mail.it')->send(new SendNewMail($newArticle));
+
 
         return redirect()->route('admin.articles.show', $newArticle);
     }
